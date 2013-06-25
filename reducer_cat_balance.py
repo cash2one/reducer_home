@@ -23,14 +23,14 @@ def output(tagdict):
 
 currentid = None
 cat = {}
-
+deviceid_old = None
 for line in stdin:
   try:
     line=line.decode('utf-8')
-    deviceid,shopid,rank,cat1 = line.strip().split()
+    deviceid,shopid,rank = line.strip().split()
     if deviceid != deviceid_old:
       deviceid_old = deviceid
-      print 'id changed'
+      print 'id changed',deviceid
 
   except IndexError,ex:
     pass
