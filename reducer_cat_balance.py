@@ -30,16 +30,18 @@ deviceid_old = None
 
 catshop = {}
 catlist = []
+
 for line in stdin:
   try:
     line=line.decode('utf-8')
     deviceid,shopid,cat1,rank = line.strip().split()
     if deviceid != deviceid_old:
+      if len(catlist) > 0:
+        output(catlist,catshop)
       deviceid_old = deviceid
+
       print 'id changed',deviceid
       # print catshop
-      if len(catlist) > 0:
-          output(catlist,catshop)
       catshop = {}
       catlist = []
     if cat1 not in catlist:
@@ -54,3 +56,5 @@ for line in stdin:
   finally:
     tagdict={}
     shopid=0
+
+output(catlist,catshop)
