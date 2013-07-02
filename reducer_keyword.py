@@ -6,9 +6,9 @@ import re
 from sys import stdin
 reload(sys)
 sys.setdefaultencoding('utf-8')
-pat1 = u'搜索商户'
+pat1 = '搜索商户'
 patE = r'^[0-9a-zA-Z \'\.]+$'
-shopid=0
+shopid = 0
 f=stdin
 for line in f:
   try:
