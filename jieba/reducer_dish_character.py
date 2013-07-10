@@ -9,7 +9,7 @@ sys.setdefaultencoding('utf-8')
 
 DISH_FILE = 'dish_dict_reduced.txt'
 DP_FILE = 'dp.txt'
-
+SHOP_DISH = 'shop_dish.txt'
 jieba.load_userdict(DISH_FILE)
 jieba.load_userdict(DP_FILE)
 
@@ -19,7 +19,7 @@ dish_dict = {}
 dp_dict = {}
 result = {}
 
-for lines in file('shop_dish.txt'):
+for lines in file(SHOP_DISH):
     # print lines.strip().split()
     shop, dish= lines.strip().split()
     if dish_dict.has_key(shop):
