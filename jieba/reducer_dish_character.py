@@ -33,7 +33,7 @@ for lines in file(DP_FILE):
     # print dp
     dp_dict[dp.decode("utf-8")] = feq
 
-
+out = file('log','w')
 # print 'processing'
 
 
@@ -66,23 +66,40 @@ def process(line):
                     print 'err:',current_dish, result[shop][current_dish], word
 
 
-# count = 0;
-# for lines in open('review_2904247.txt'):
-#     count += 1
-# print 'total',count
+count = 0;
+shopold = ''
+for lines in open('review_5478499.txt'):
+    count += 1
+print 'total',count
 
 i = 0.0
-for line in stdin:
+
+for lines in open('review_5478499.txt'):
+    shopold = lines.strip().split()[0]
+    break
+
+def show(result):
+    for shop in result.keys():
+        for dish_item in result[shop].keys():
+    # print '---------',dish_item, '---------'
+            for dp_item in result[shop][dish_item].keys():
+                print shop , dish_item, dp_item , result[shop][dish_item][dp_item]
+
+for line in open('review_5478499.txt'):
+    shop = line.strip().split()[0]
+    if shopold != shop:
+        show(result)
     process(line)
     i += 1
-    # if i%100 == 0:
-        # print 'count ' + str(i)
+    if i > 1000 == 0:
+        break
+    if i%100 == 0:
+         out.write('count ' + str(i) + ' ' + str (i/count) + '%\n')
     # if i > 5:
     #     break
 
+
+out.close()
+show(result)
 # print result
-for shop in result.keys():
-    for dish_item in result[shop].keys():
-    # print '---------',dish_item, '---------'
-        for dp_item in result[shop][dish_item].keys():
-            print shop , dish_item, dp_item , result[shop][dish_item][dp_item]
+
