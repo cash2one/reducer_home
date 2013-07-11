@@ -6,7 +6,7 @@ from sys import stdin
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-
+REVIEW_FILE = sys.argv[1]
 DISH_FILE = 'dish_dict_reduced.txt'
 DP_FILE = 'dp.txt'
 SHOP_DISH = 'shop_dish.txt'
@@ -68,27 +68,21 @@ def process(line):
 
 count = 0;
 shopold = ''
-for lines in open('review_5478499.txt'):
+for lines in open(REVIEW_FILE):
     count += 1
 print 'total',count
 
 i = 0.0
 
-for lines in open('review_5478499.txt'):
-    shopold = lines.strip().split()[0]
-    break
 
 def show(result):
     for shop in result.keys():
         for dish_item in result[shop].keys():
     # print '---------',dish_item, '---------'
             for dp_item in result[shop][dish_item].keys():
-                print shop , dish_item, dp_item , result[shop][dish_item][dp_item]
+                print '\x01'.join([str(shop) , str(dish_item),str(dp_item) , str(result[shop][dish_item][dp_item])])
 
-for line in open('review_5478499.txt'):
-    shop = line.strip().split()[0]
-    if shopold != shop:
-        show(result)
+for line in open(REVIEW_FILE):
     process(line)
     i += 1
     if i > 1000 == 0:
@@ -97,7 +91,6 @@ for line in open('review_5478499.txt'):
          out.write('count ' + str(i) + ' ' + str (i/count) + '%\n')
     # if i > 5:
     #     break
-
 
 out.close()
 show(result)

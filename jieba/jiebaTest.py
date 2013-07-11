@@ -1,7 +1,7 @@
 #encoding=utf-8
 import jieba
 jieba.load_userdict('dish_dict_reduced.txt')
-
+jieba.load_userdict('negtive.txt')
 jieba.load_userdict('dp.txt')
 import jieba.posseg as pseg
 from collections import deque
@@ -76,7 +76,7 @@ def process2(sentence):
     for  w in wordlist:
         queue.append(w)
     # print w
-        if len(queue) >= 20:
+        if len(queue) >= 25:
             queue.pop(0)
             dishname = queue[3]
             if dic.has_key(dishname):
@@ -89,11 +89,11 @@ def process2(sentence):
                 # print str(queue[4])
                 #     print '/'.join(queue)
 
-for sentence in open('review_2904247.txt'):
+for sentence in open('review_4550707.txt'):
     process2(sentence)
 
 
-for line in result[u'意面']:
+for line in result[u'寿喜锅']:
     print '/'.join(list(line))
 
 
