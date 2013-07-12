@@ -1,7 +1,7 @@
-不是 1 neg
-不会 1 neg
-不至于 1 neg
-不够 1 neg
-没有 1 neg
+不是 2 neg
+不会 2 neg
+不至于 3 neg
+不够 2 neg
+没有 2 neg
 没 1 neg
 不 1 neg

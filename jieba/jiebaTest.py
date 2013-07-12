@@ -64,6 +64,7 @@ def process(sentence):
 queue = []
 aa = set()
 result = {}
+
 def process2(sentence):
 
     seg_list = jieba.cut(sentence)
