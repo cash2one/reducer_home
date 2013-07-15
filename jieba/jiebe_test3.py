@@ -5,6 +5,7 @@ import jieba
 from sys import stdin
 import jieba.posseg as pseg
 
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -15,16 +16,19 @@ SHOP_DISH = 'shop_dish.txt'
 NEGTIVE = 'negtive.txt'
 ADJ = 'adj.txt'
 
+
 jieba.load_userdict(ADJ)
 jieba.load_userdict(DISH_FILE)
 jieba.load_userdict(DP_FILE)
 jieba.load_userdict(NEGTIVE)
+
 
 dish_dict = {}
 dp_list = []
 result = {}
 negtive_list = []
 adj_list = []
+
 
 for lines in file(ADJ):
     adj, feq, flag = lines.strip().split()
@@ -51,16 +55,17 @@ queue = []
 aa = set()
 result = {}
 
+
 def preprocessing(review):
 
     seg_list = pseg.cut(review)
     wlist = list(seg_list)
-    # print '/'.join([w.word for w in wlist])
     for w in wlist:
-        if w.word in adj_list and w.flag == 'd':
-            # print w.word
-            review = review.replace(w.word,'')
-            # print review
+        if w.word in adj_list:
+            # print w.word, w.flag
+            review = review.replace(w.word, ' ')
+    print review
+    # print '/'.join([w.word for w in wlist])
     return review
 
 def process(line):
@@ -77,13 +82,9 @@ def process(line):
     for w in wlist:
         if w.word in ['。',';']:
             pass
-            # current_dish = ''
+            current_dish = ''
         elif w.word in dish_dict[shop]:
             current_dish = w.word
-            # print current_dish
-
-        if current_dish != '':
-            print w.word,' '
 
         elif w.word in dp_list and len(current_dish) > 0:
             dp = w.word
@@ -108,90 +109,22 @@ def process(line):
 
         w_before = w
 
-
-def process2(sentence, key_list):
-
-    seg_list = jieba.cut(sentence)
-# print "Full Mode:", "/ ".join(seg_list)  # 全模式
-    wordlist = list(seg_list)
-# print type(seg_list)
-# print "Full Mode:", "/ ".join(seg_list)  # 全模式
-    for w in wordlist:
-        queue.append(w)
-    # print w
-        if len(queue) >= 50:
-            queue.pop(0)
-            keyword = queue[3]
-            if keyword in key_list:
-                if keyword not in aa:
-                    aa.add(keyword)
-                    result[keyword] = [tuple(queue)]
-                else:
-                    result[keyword].append(tuple(queue))
-                    # print u'菜名------' + keyword
-                # print str(queue[4])
-                #     print '/'.join(queue)
-
-
 def show(result):
     for shop in result.keys():
         for dish_item in result[shop].keys():
-    # print '---------',dish_item, '---------'
+            print '---------',dish_item, '---------'
             for dp_item in result[shop][dish_item].keys():
                 print '\x01'.join([str(shop) , str(dish_item),str(dp_item) , str(result[shop][dish_item][dp_item])])
-
-
-
-def showword():
-    i = 0
-    key = u'煲汤'
-    key_list = [key]
-    for line in open(REVIEW_FILE):
-        sentence = line.split('\t')[1]
-        process2(sentence,key_list)
-        i += 1
-        if i > 10000:
-            break
-
-    for line in result[key]:
-        print '/'.join(list(line))
-
 
 def showdp():
 
     i = 0
     for line in open(REVIEW_FILE):
         shop = line.split('\t')[0]
-        if shop == '2549773':
-            print  line
-            process(line)
+        process(line)
         i += 1
-        if i > 10000:
+        if i > 100:
             break
     show(result)
 
-
-def showreview():
-    for line in open(REVIEW_FILE):
-        shop = line.split('\t')[0]
-        if shop == '4078861':
-            print  line
-
-
-
-# showword()
-# showdp()
-showreview()
-
-    # i += 1
-    # if i > 1000 == 0:
-    #     break
-    # if i%100 == 0:
-    #      out.write('count ' + str(i) + ' ' + str (i/count) + '%\n')
-    # # if i > 5:
-    # #     break
-
-# s ='5478499	噱头大于实质，无非就是一家中式铁板烧，排队人老多老多的。每个菜都很咸，调味过度，菜量也很少。蒜香大虾，味道凑合，量少，羊排和什锦炒饭不推荐，真心没啥好吃的。六点半左右厨师都会放下手里的大勺集团跳骑马舞，这年头真心搵食不易啊，厨师还要会跳舞。'
-# seg_list = jieba.cut(s)
-# print "Full Mode:", "/ ".join(seg_list)  # 全模式
-# process(s)
+showdp()

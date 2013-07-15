@@ -85,7 +85,7 @@ def show(result):
 for line in open(REVIEW_FILE):
     process(line)
     i += 1
-    if i > 1000 == 0:
+    if i > 10000:
         break
     if i%100 == 0:
          out.write('count ' + str(i) + ' ' + str (i/count) + '%\n')
