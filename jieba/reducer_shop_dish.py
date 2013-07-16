@@ -18,13 +18,12 @@ cityid=0
 for line in stdin:
   try:
  #   line=line.decode('utf-8')
-    dish = line.strip().split('\t')[0]
-    count = line.strip().split('\t')[1]
-    co = float(count)
+    shopid = line.strip().split('\t')[0]
+    dish = line.strip().split('\t')[1]
 
     # a = float(rank)
     if ' ' not in dish:
-        print " ".join([dish.upper(), str(co), 'n'])
+        print "\t".join([shopid , dish.upper()])
   except IndexError,ex:
     pass
   except ValueError,ex:

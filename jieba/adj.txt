@@ -1,7 +1,12 @@
 很 1 adj
 太 1 adj
 也 1 c
+略 1 adj
+稍 1 adj
+挺 1 adj
 偏 1 adj
+好 1 adj
 非常 2 adj
 特别 2 adj
 超级 2 adj
+十分 2 adj

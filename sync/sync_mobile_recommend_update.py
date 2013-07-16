@@ -12,6 +12,7 @@ import pymysql as MySQLdb
 MySQLdb.install_as_MySQLdb()
 
 C = MySQLdb.connect
+__author__ = 'linkerlin'
 
 class DeviceIter(object):
     def __init__(self, filename):
