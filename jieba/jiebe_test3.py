@@ -11,8 +11,10 @@ sys.setdefaultencoding('utf-8')
 
 REVIEW_FILE = sys.argv[1]
 DISH_FILE = 'dish_dict_reduced.txt'
+# DISH_FILE = 'sub_dish_reducered.txt'
 DP_FILE = 'dp.txt'
 SHOP_DISH = 'shop_dish.txt'
+# SHOP_DISH = 'shop_dish_sub.txt'
 NEGTIVE = 'negtive.txt'
 ADJ = 'adj.txt'
 
@@ -30,7 +32,7 @@ negtive_list = []
 adj_list = []
 
 shopReview = {}
-
+out = file('log','w')
 
 for lines in file(ADJ):
     adj, feq, flag = lines.strip().split()
@@ -73,7 +75,8 @@ class shopIter:
             try:
                 shopid, reviewbody = line.replace('\n','').split('\t')
             except ValueError as e:
-                print 'split error'
+                # print 'split error'
+                pass
             else:
                 if shopid == self.shopid:
                     self.data.append((shopid,reviewbody))
@@ -103,6 +106,7 @@ class dpgroup:
         self.adj = ''
         self.noun = ''
         self.neg = ''
+        self.detail = ''
 
     def setshop(self, shop):
         self.shop = shop
@@ -110,24 +114,51 @@ class dpgroup:
     def setdish(self, dish):
         self.dish = dish
 
-    def parser(self,shop,list):
+    def setadj(self,adj):
+        self.adj = adj
 
-        self.dp = list.pop().word
+    def setnoun(self,noun):
+        self.noun = noun
 
-        while (len(list) > 0):
+    def setneg(self,neg):
+        self.neg = neg
 
-            if list[-1].word in adj_list:
-                self.adj = list.pop().word
-            elif list[-1].word  in negtive_list:
-                self.neg = list.pop().word
-            elif list[-1].flag in ['n','nr'] and list[-1].word not in dish_dict[shop]:
-                self.noun = list.pop().word
+    def parser(self,shop,l):
+
+
+        self.dp = l.pop().word
+
+        idx = len(l)
+        lword = [w.word for w in l]
+
+        for w in list(reversed(l)):
+
+            if w.word in adj_list:
+                self.setadj(w.word)
+                # self.adj = w.word
+                idx = l.index(w)
+                continue
+            elif w.word in negtive_list:
+                self.setneg(w.word)
+                # self.neg = w.word
+                idx = l.index(w)
+                continue
+            elif w.flag in ['n','nr'] and (w.word not in dish_dict[shop]):
+                # self.noun = w.flag
+                self.setnoun(w.word)
+                idx = l.index(w)
+                continue
+            elif w.word == u'比':
+                # idx = lword.index(w.word)
+                idx = l.index(w)
+                break
             else:
                 break
 
-        for w in list:
-            if w.word in negtive_list:
-                self.neg = u'不'
+        # print idx
+        # print '/'.join([ w for w in lword[idx:]]) + '/' + self.dp
+        self.detail = ''.join([w for w in lword[idx:]])+self.dp
+        # print self.detail+'----'+'/'.join([self.shop,self.dish, self.noun, self.neg, self.adj, self.dp])
 
     def groupshow(self):
         print 'parser:' + '/'.join([self.shop,self.dish, self.noun, self.neg, self.adj, self.dp])
@@ -135,7 +166,7 @@ class dpgroup:
 def preprocessing(line):
 
     shop,review = line.split('\t')[0],line.split('\t')[1]
-    review = review.replace(u'了','').replace(u'的','').replace(u'也','').replace(u'还','')
+    review = review.replace(u'了','').replace(u'的','').replace(u'也','')
     # print shop,'\t',review
     current_dish = ''
     high_dp = []
@@ -173,7 +204,7 @@ def preprocessing(line):
             dpg.setshop(shop)
             dpg.parser(shop, high_dp)
 
-            if dpg.noun in [u'店面',u'服务',u'环境']:
+            if dpg.noun in [u'店面',u'服务',u'环境',u'时候',u'人']:
                 continue
             # dpg.groupshow()
             dpglist.append(dpg)
@@ -189,10 +220,13 @@ def processdpg(line,result,shopReview):
     dpglist = preprocessing(line)
 
     for dpg in dpglist:
+
         current_dish = dpg.dish
-        dp_extend = dpg.noun + dpg.neg + dpg.adj + dpg.dp
+        # dp_extend = dpg.noun + dpg.neg + dpg.adj + dpg.dp
         dp = dpg.neg + dpg.dp
-        # print '-'.join([dp,dp_extend])
+        dp_extend = dpg.detail
+        # if current_dish == u'红豆糕':
+        #     print '-'.join([current_dish,dp,dp_extend])
         if not shopReview.has_key(dp):
             shopReview[dp] = {}
             shopReview[dp][dp_extend] = 1
@@ -216,9 +250,6 @@ def processdpg(line,result,shopReview):
                 print 'err:',current_dish, result[shop][current_dish], dp
 
     return result, shopReview
-
-
-
 
 
 # def process(line):
@@ -272,18 +303,25 @@ def show(result,shopReview):
         for dish_item in result[shop].keys():
             # print '---------',dish_item, '---------'
             for dp_item in result[shop][dish_item].keys():
-                # dp_detal = dp_item
-                score = 0
+
+                dp_detal = dp_item
+                score = result[shop][dish_item][dp_item]
+
                 for dd in shopReview[dp_item].keys():
-                    # if shopReview[dp_item][dd] <= 1:
-                    #     continue
+                    if shopReview[dp_item][dd] <= 1:
+                        continue
                     if score < shopReview[dp_item][dd]*len(dd):
                         score = shopReview[dp_item][dd]*len(dd)
                         # print dd , shopReview[dp_item][dd],score
                         dp_detal = dd
                         # print dp_detal
-                if score > 0:
-                    print '\x01'.join([str(shop) , str(dish_item),str(dp_detal) , str(score)])
+                if score > 1 and dp_detal != u'好':
+                    print ' '.join([str(shop) , str(dish_item),str(dp_detal) , str(score)])
+
+count = 0
+for lines in open(REVIEW_FILE):
+    count += 1
+# print count
 
 def showdp():
 
@@ -291,41 +329,45 @@ def showdp():
     iter = shopIter(REVIEW_FILE)
     end = True
     shopnum = 0
+    i = 0
+
     while end:
         shopnum += 1
         result = {}
         shopReview = {}
-        i = 0
         for l in iter.getOneReview():
             # print l
             ll = list(l)
             if len(ll) == 0:
                 end = False
                 break
-    # for line in open(REVIEW_FILE):
             line = '\t'.join(ll)
 
-        # shop = line.split('\t')[0]
+            shop = line.split('\t')[0]
+
             line = line.upper()
             # print i
             i += 1
-        # if shop == '4078861':
+            # if shop != '1945402':
+            #      break
             result, shopReview = processdpg(line.decode("utf-8"),result,shopReview)
         # i += 1
-            if i > 50:
-                break
+        #     if i > 50:
+        #         break
+            if i%100 == 0:
+                out.write('count ' + str(i) + ' ' + str (i/count) + '%\n')
 
         # print shopReview
         # print '------'
         show(result,shopReview)
 
+        # if shopnum >= 3:
+        #     break
         result = {}
         shopReview = {}
-
-        if shopnum >= 2:
-            break
 
 
 
 
 showdp()
+out.close()

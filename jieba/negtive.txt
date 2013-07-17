@@ -1,4 +1,5 @@
 不是 2 neg
+不如 2 neg
 不会 2 neg
 不至于 3 neg
 不够 2 neg

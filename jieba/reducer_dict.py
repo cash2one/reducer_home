@@ -19,9 +19,9 @@ for line in stdin:
   try:
  #   line=line.decode('utf-8')
     dish = line.strip().split('\t')[0]
-    count = line.strip().split('\t')[1]
-    co = float(count)
-
+    # count = line.strip().split('\t')[1]
+    # co = float(count)
+    co = 1.0
     # a = float(rank)
     if ' ' not in dish:
         print " ".join([dish.upper(), str(co), 'n'])

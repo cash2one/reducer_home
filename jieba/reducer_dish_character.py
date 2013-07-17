@@ -66,8 +66,9 @@ def process(line):
                     print 'err:',current_dish, result[shop][current_dish], word
 
 
-count = 0;
+
 shopold = ''
+count = 0
 for lines in open(REVIEW_FILE):
     count += 1
 print 'total',count
