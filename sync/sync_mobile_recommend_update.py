@@ -7,6 +7,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 import time, datetime
 import subprocess
+import json
 import pymysql as MySQLdb
 
 MySQLdb.install_as_MySQLdb()
@@ -65,24 +66,26 @@ class DeviceIter(object):
 
 if __name__ == '__main__':
 
-    hot_keyword_file = sys.argv[1]
+    mobile_update = sys.argv[1]
 
     total = 1
-    for line in file(hot_keyword_file):
+    for line in file(mobile_update):
         total +=1
     print "total",total
 
-    iter = DeviceIter(hot_keyword_file)
-    print 'iter'
+    iter = DeviceIter(mobile_update)
+
     try:
         conn = None
         cur = None
         sql = None
         count = 0
+        deviceid_count = 0
         correct = 0
         end = 1
         while end:
-            if count % 10000 == 0:
+
+            if deviceid_count % 5000 == 0:
                 if conn:
                     conn.commit()
                     conn.close()
@@ -92,37 +95,47 @@ if __name__ == '__main__':
                 sql = """USE airec;"""
                 cur.execute(sql)
 
+            deviceid_count += 1
 
-            frist = 1
+            deviceidrankmap = {}
 
             for l in iter.getOneDeviceDate():
                 ll = list(l)
-                # print ll
                 if len(ll) == 0:
                     end = 0
                     break
                 count += 1
-                deviceid, cityID, shopID, score = l[0], l[1], l[2], l[3]
-                # print deviceid,cityID,shopID,score
-                if frist == 1:
-                    frist = 0
-                    sql = """DELETE FROM DP_MobileRecommend WHERE Deviceid = '%s' and CityID = '%s'
-                    """ % (deviceid, int(cityID))
-                    # print sql
-                    ret = cur.execute(sql)
 
-                sql = """INSERT INTO DP_MobileRecommend (Deviceid, CityID, Shopid, Rank) value('%s','%d','%d','%f');
-                    """ % (deviceid, int(cityID),int(shopID), float(score))
-                # print sql
-                ret = cur.execute(sql)
-                if ret > 0:
-                    correct += 1
-                if count % 3000 == 0:
-                    conn.commit()
-                    print correct/count,correct,"/",count
-                    print 100*count/total, '%'
-                    print sql
-                    time.sleep(1)
+                deviceid, cityID, shopID, score = l[0], l[1], l[2], l[3]
+                deviceidrankmap[shopID] = score
+
+            # print deviceid, cityID
+            # print json.dumps(deviceidrankmap)
+
+            sql = """REPLACE INTO airec.DP_MobileRec (DeviceID, CityID, ShopIDRankMap) VALUES('%s','%d',"%s")
+            """ % (deviceid, int(cityID), deviceidrankmap)
+
+            # print sql
+            ret = cur.execute(sql)
+            if ret > 0:
+                correct += 1
+            if deviceid_count % 1000 == 0:
+                conn.commit()
+                print correct/deviceid_count,correct,"/",deviceid_count
+                print 100*count/total, '%'
+                print sql
+                time.sleep(1)
+
+                #     sql = """DELETE FROM DP_MobileRec WHERE Deviceid = '%s' and CityID = '%s'
+                #     """ % (deviceid, int(cityID))
+                #     # print sql
+                #     ret = cur.execute(sql)
+                #
+                # sql = """INSERT INTO DP_MobileRecommend (Deviceid, CityID, Shopid, Rank) value('%s','%d','%d','%f');
+                #     """ % (deviceid, int(cityID),int(shopID), float(score))
+                # # print sql
+                # ret = cur.execute(sql)
+
     except Exception, ex:
         print "DB ERROR:", ex
     finally:
