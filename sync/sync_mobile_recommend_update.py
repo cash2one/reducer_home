@@ -13,7 +13,6 @@ import pymysql as MySQLdb
 MySQLdb.install_as_MySQLdb()
 
 C = MySQLdb.connect
-__author__ = 'linkerlin'
 
 class DeviceIter(object):
     def __init__(self, filename):
@@ -107,34 +106,25 @@ if __name__ == '__main__':
                 count += 1
 
                 deviceid, cityID, shopID, score = l[0], l[1], l[2], l[3]
-                deviceidrankmap[shopID] = score
+                deviceidrankmap[shopID] = float(score)
 
             # print deviceid, cityID
             # print json.dumps(deviceidrankmap)
 
-            sql = """REPLACE INTO airec.DP_MobileRec (DeviceID, CityID, ShopIDRankMap) VALUES('%s','%d',"%s")
-            """ % (deviceid, int(cityID), deviceidrankmap)
+            sql = """REPLACE INTO airec.DP_MobileRec_tmp (DeviceID, CityID, ShopIDRankMap) VALUES('%s','%d','%s')
+            """ % (deviceid, int(cityID), json.dumps(deviceidrankmap))
 
             # print sql
             ret = cur.execute(sql)
             if ret > 0:
                 correct += 1
-            if deviceid_count % 1000 == 0:
+            if deviceid_count % 2000 == 0:
                 conn.commit()
                 print correct/deviceid_count,correct,"/",deviceid_count
                 print 100*count/total, '%'
                 print sql
-                time.sleep(1)
+                time.sleep(0.5)
 
-                #     sql = """DELETE FROM DP_MobileRec WHERE Deviceid = '%s' and CityID = '%s'
-                #     """ % (deviceid, int(cityID))
-                #     # print sql
-                #     ret = cur.execute(sql)
-                #
-                # sql = """INSERT INTO DP_MobileRecommend (Deviceid, CityID, Shopid, Rank) value('%s','%d','%d','%f');
-                #     """ % (deviceid, int(cityID),int(shopID), float(score))
-                # # print sql
-                # ret = cur.execute(sql)
 
     except Exception, ex:
         print "DB ERROR:", ex
