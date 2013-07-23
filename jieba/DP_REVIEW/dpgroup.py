@@ -55,7 +55,7 @@ class dpgroup:
                 # self.noun = w.flag
                 self.setnoun(w.word)
                 idx = l.index(w)
-                break
+                continue
 
             elif w.flag == 'v' and w.word not in [u'是']:
                 # print w.word
@@ -79,8 +79,8 @@ class dpgroup:
         # print idx
         # print '/'.join([ w for w in lword[idx:]]) + '/' + self.dp
         self.detail = ''.join([w for w in lword[idx:]]) + self.dp
-        if self.verb == '':
-            self.detail = self.detail.replace(u'的',u'').strip()
+        # if self.verb == '':
+        #     self.detail = self.detail.replace(u'的',u' ').strip()
         # print self.detail+'----'+'/'.join([self.shop,self.dish, self.noun, self.neg, self.adj, self.dp])
 
     def groupshow(self):

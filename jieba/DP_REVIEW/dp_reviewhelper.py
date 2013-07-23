@@ -23,6 +23,7 @@ class dp_reviewhelper:
         self.shopReview = {}
         self.shopid = None
         self.file = ''
+        self.alldish = set([u'ma'])
 
 
     def GetScore(self , dpg):
@@ -45,6 +46,11 @@ class dp_reviewhelper:
 
     def LoadDishDict(self,DISH_DICT):
         jieba.load_userdict(DISH_DICT)
+        for lines in file(DISH_DICT):
+            dish, feq, flag = lines.strip().split()
+            # print dish
+            self.alldish.add(dish.decode("utf-8"))
+
 
     def LoadShopDish(self, SHOP_DISH):
         self.shopDish = {}
@@ -74,12 +80,15 @@ class dp_reviewhelper:
         if model == '1':
             # total match
             if dish in self.shopDish[shop]:
+                # print dish
                 return dish,dish
-            else:
+            elif dish in self.alldish:
                 for longdish in self.shopDish[shop]:
-                    if longdish.find(dish) >= 0 and len(longdish) > 5:
+                    if longdish.find(dish) >= 0 and len(longdish) >= 5:
+                        # print dish,'------------->',longdish
                         return dish,longdish
             return dish,None
+
 
 
 
@@ -116,9 +125,11 @@ class dp_reviewhelper:
                     pass
                     # print dish, logdish,'***********'
                 current_dish = logdish
+                current_count = 0
                 # print current_dish
 
             if current_dish != '':
+                # print current_dish
                 current_count += 1
             else:
                 current_count = 0
@@ -143,7 +154,7 @@ class dp_reviewhelper:
                     continue
                 # dpg.groupshow()
                 dpglist.append(dpg)
-                # print  shop, current_dish , dpg.dp, dpg.adj, dpg.neg, dpg.noun, dpg.detail
+                print  shop, current_dish , dpg.dp, dpg.adj, dpg.neg, dpg.noun, dpg.detail
         #
         return dpglist
 
@@ -205,10 +216,10 @@ class dp_reviewhelper:
                         maxScore = score
                         dp_toshow = dp_detail
 
-                if maxScore > 1 and len(dp_detail) < 8:
+                if maxScore >= 1 and len(dp_detail) < 8:
                     # print self.shopid, dish, dp ,type,dp_toshow, self.cao[dp_toshow],str(maxScore)
                     print '\t'.join([self.shopid, dish, dp ,type,dp_toshow, self.cao[dp_toshow],str(maxScore)])
-                # print '\t'.join([str(self.shopid), str(dish), str(dp_toshow) ,str(score)])
+                # print '\t'.join([self.shopid, dish, dp ,type,dp_toshow, self.cao[dp_toshow],str(maxScore)])
 
 
     def excute(self,review,n = 0):
@@ -253,6 +264,7 @@ class dp_reviewhelper:
 def main(filenam):
 
     dp_test = dp_reviewhelper()
+    dp_test.LoadDishDict('dish_dict_reduced.txt')
     dp_test.LoadShopDish('shop_dish.txt')
     dp_test.LoadDictDP('dish_dict_reduced.txt')
     dp_test.LoadDictDP('dp_tasty_dict.txt')
@@ -264,6 +276,9 @@ def main(filenam):
 
 if __name__ == '__main__':
 
-    filenam = sys.argv[1]
-    main(filenam)
+    try:
+        filename = sys.argv[1]
+    except IndexError:
+        filename = 'review_2873341_sub.txt'
+    main(filename)
 # dp_test.show()
