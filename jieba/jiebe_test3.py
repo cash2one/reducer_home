@@ -248,7 +248,6 @@ def processdpg(line,result,shopReview):
                     result[shop][current_dish][dp] = 1
             except AttributeError, ex:
                 print 'err:',current_dish, result[shop][current_dish], dp
-
     return result, shopReview
 
 

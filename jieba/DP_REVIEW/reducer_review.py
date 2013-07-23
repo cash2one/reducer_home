@@ -15,7 +15,7 @@ cityid=0
 
 shops = []
 dishs = []
-for lines in file("cold.txt"):
+for lines in file("hot.txt"):
     shopid = lines.strip().split('\t')[1].strip()
     if shopid not in shops:
         shops.append(shopid)
@@ -38,12 +38,9 @@ for lines in file("cold.txt"):
 # print '\n'.join(dishs)
 # print '\n'.join(shops)
 
-for line in stdin:
+for line in file("dp_review.txt"):
   try:
     shopid = line.strip().split("\t")[0]
-    # co = len(dp)
-    # a = float(rank)
-    # print shopid
     if shopid in shops:
         print line
     # print " ".join([dp, str(co), 'dp'])
