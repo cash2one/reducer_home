@@ -15,8 +15,8 @@ class dp_reviewhelper:
         self.model = ['']
         self.result = {}
         self.shopDish = {}
-        self.dpFeeling = []
-        self.dpTasty = []
+        self.dpFeeling = set([])
+        self.dpTasty = set([])
         self.neg = []
         self.adj = []
         self.cao = {}
@@ -40,9 +40,9 @@ class dp_reviewhelper:
         for lines in file(DP_dict):
             dp, feq, flag = lines.strip().split()
             if flag == 'feeling':
-                self.dpFeeling.append(dp.decode("utf-8"))
+                self.dpFeeling.add(dp.decode("utf-8"))
             elif flag == 'tasty':
-                self.dpTasty.append(dp.decode("utf-8"))
+                self.dpTasty.add(dp.decode("utf-8"))
 
     def LoadDishDict(self,DISH_DICT):
         jieba.load_userdict(DISH_DICT)
@@ -90,19 +90,13 @@ class dp_reviewhelper:
             return dish,None
 
 
-
-
-    def PreProcessing(self, body):
-
-
-        shop,review = body.strip().split('\t')[0],body.strip().split('\t')[1]
-
-        dishs = self.shopDish[shop]
+    def PreProcessing(self, shop, review):
 
         # review = review.replace(u'了','').replace(u'的','').replace(u'也','')
         review = review.replace(u'了','').replace(u'也','')
         # print shop,'\t',review
-
+        numstop = 0;
+        numunit = 0;
         current_dish = ''
         dp_queue = []
 
@@ -114,7 +108,12 @@ class dp_reviewhelper:
         dpglist = []
 
         for w in wlist:
+
             dp_queue.append(w)
+            numunit += 1
+            if w.word == u"。":
+                numstop += 1
+
             if len(dp_queue) > 5:
                 dp_queue.pop(0)
 
@@ -138,11 +137,11 @@ class dp_reviewhelper:
                 current_dish = ''
                 current_count = 0
 
-            if w.word in [u':',u'!',u'@',u'+',u'.',u'~',u'?',u'！',u'？',u'：',u' ',u'其他',u'另外'] and current_dish != '':
+            if w.word in set([u'。',u':',u'!',u'@',u'+',u'.',u'~',u'?',u'！',u'？',u'：',u' ',u'其他',u'另外']) and current_dish != '':
                 current_dish = ''
                 dp_queue[:] = []
 
-            if w.word in (self.dpTasty + self.dpFeeling) and current_dish != '':
+            if w.word in (self.dpTasty | self.dpFeeling) and current_dish != '':
                 # print  shop, current_dish , dp_queue
 
                 dpg = dpgroup('dp')
@@ -150,25 +149,19 @@ class dp_reviewhelper:
                 dpg.setshop(shop)
                 dpg.parser(shop, dp_queue, self.adj, self.neg, self.shopDish[shop])
         #
-                if dpg.noun in [u'口味',u'感觉',u'味道',u'生意',u'店面',u'服务',u'环境',u'时候',u'人']:
+                if dpg.noun in set([u'生意',u'店面',u'服务',u'环境',u'时候',u'人']):
                     continue
+                elif dpg.noun in set([u'有点',u'口味',u'感觉',u'味道']):
+                    dpg.noun = u''
                 # dpg.groupshow()
                 dpglist.append(dpg)
-                print  shop, current_dish , dpg.dp, dpg.adj, dpg.neg, dpg.noun, dpg.detail
+                # print  shop, current_dish , dpg.dp, dpg.adj, dpg.neg, dpg.noun, dpg.detail
         #
         return dpglist
 
-    def ProcessDgp(self, line):
+    def ProcessDgp(self, shop, review):
 
-        try:
-            shop,review = line.strip().split('\t')[0],line.strip().split('\t')[1]
-        except IndexError, ex:
-            return
-
-        if shop not in self.result.keys():
-            self.result[shop] = {}
-
-        dpglist = self.PreProcessing(line)
+        dpglist = self.PreProcessing(shop,review)
 
         for dpg in dpglist:
 
@@ -196,7 +189,9 @@ class dp_reviewhelper:
                 cc = dpg.verb
             else:
                 cc = u' '
-            self.cao[dpg.detail]= cc
+            if current_dish not in self.cao.keys():
+                self.cao[current_dish] = {}
+            self.cao[current_dish][dpg.detail]= cc
             #
 
     def Show(self):
@@ -216,9 +211,10 @@ class dp_reviewhelper:
                         maxScore = score
                         dp_toshow = dp_detail
 
-                if maxScore >= 1 and len(dp_detail) < 8:
+                if maxScore > 1 and len(dp_toshow) < 8:
+                    # print len(dp_detail)
                     # print self.shopid, dish, dp ,type,dp_toshow, self.cao[dp_toshow],str(maxScore)
-                    print '\t'.join([self.shopid, dish, dp ,type,dp_toshow, self.cao[dp_toshow],str(maxScore)])
+                    print '\t'.join([self.shopid, dish, dp ,type,dp_toshow, self.cao[dish][dp_toshow],str(maxScore)])
                 # print '\t'.join([self.shopid, dish, dp ,type,dp_toshow, self.cao[dp_toshow],str(maxScore)])
 
 
@@ -230,6 +226,7 @@ class dp_reviewhelper:
 
             try:
                 shopid = lines.split('\t')[0]
+                review = lines.split('\t')[1].decode("utf-8")
             except IndexError, ex:
                 continue
 
@@ -237,11 +234,11 @@ class dp_reviewhelper:
                 continue
 
             if shopid == self.shopid:
-                self.ProcessDgp(lines.decode("utf-8"))
+                self.ProcessDgp(shopid, review)
 
             elif self.shopid is None:
                 self.shopid = shopid
-                self.ProcessDgp(lines.decode("utf-8"))
+                self.ProcessDgp(shopid, review)
 
             elif shopid != self.shopid:
 
@@ -249,7 +246,7 @@ class dp_reviewhelper:
                 self.cao = {}
                 self.shopReview = {}
                 self.shopid = shopid
-                self.ProcessDgp(lines.decode("utf-8"))
+                self.ProcessDgp(shopid, review)
                     # break
                     # self.PreProcessing(lines.decode("utf-8"))
                 # count += 1
@@ -275,10 +272,9 @@ def main(filenam):
     dp_test.excute(filenam)
 
 if __name__ == '__main__':
-
     try:
         filename = sys.argv[1]
     except IndexError:
-        filename = 'review_2873341_sub.txt'
+        filename = 'review_hot.txt'
     main(filename)
 # dp_test.show()

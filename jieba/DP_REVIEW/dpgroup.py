@@ -79,6 +79,8 @@ class dpgroup:
         # print idx
         # print '/'.join([ w for w in lword[idx:]]) + '/' + self.dp
         self.detail = ''.join([w for w in lword[idx:]]) + self.dp
+        # if len(self.detail) > 7:
+        #     self.detail = self.neg + self.dp
         # if self.verb == '':
         #     self.detail = self.detail.replace(u'的',u' ').strip()
         # print self.detail+'----'+'/'.join([self.shop,self.dish, self.noun, self.neg, self.adj, self.dp])
