@@ -24,3 +24,4 @@ def preprocessing(review):
     return review
 
 print preprocessing(u"我爱吃奶油草莓肉配料配菜坚果,不是不会不至于不太不那么。有点甜很特别好吃非常棒超爱超级不错太老")
+print len('块钱的蛋糕核算很多')

@@ -93,7 +93,7 @@ class dp_reviewhelper:
                 return dish,dish
             elif dish in self.alldish:
                 for longdish in self.shopDish[shop]:
-                    if longdish.find(dish) >= 0 and len(longdish) >= 3:
+                    if longdish.find(dish) >= 0 and len(longdish) >= 2:
                         # print dish,'------------->',longdish
                         return dish,longdish
             return dish,None
@@ -257,8 +257,8 @@ class dp_reviewhelper:
                 print count/total
 
             try:
-                shopid = lines.split('\t')[0]
-                review = lines.split('\t')[1].decode("utf-8")
+                shopid = lines.split('\t')[2]
+                review = lines.split('\t')[3].decode("utf-8")
             except IndexError, ex:
                 continue
 

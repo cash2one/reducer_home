@@ -15,10 +15,10 @@ cityid=0
 
 shops = []
 dishs = []
-# for lines in file("dish.txt"):
-#     shopid = lines.strip().split('\t')[1].strip()
-#     if shopid not in shops:
-#         shops.append(shopid)
+for lines in file("cold.txt"):
+    shopid = lines.strip().split('\t')[1].strip()
+    if shopid not in shops:
+        shops.append(shopid)
 
 
 # for lines in file("dp_review 2.txt"):
@@ -38,11 +38,13 @@ dishs = []
 # print '\n'.join(dishs)
 # print '\n'.join(shops)
 
-for line in file("dp_review.txt"):
+for line in stdin:
   try:
     shopid = line.strip().split("\t")[0]
-    # if shopid in shops:
-    if shopid == '500051':
+    # co = len(dp)
+    # a = float(rank)
+    # print shopid
+    if shopid in shops:
         print line
     # print " ".join([dp, str(co), 'dp'])
   except IndexError,ex:

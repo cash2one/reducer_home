@@ -102,7 +102,8 @@ class dp_reviewhelper:
     def PreProcessing(self, shop, review):
 
         # review = review.replace(u'了','').replace(u'的','').replace(u'也','')
-        review = review.replace(u'了','').replace(u'也','')
+        review = review.replace(u'了',u'').replace(u'也',u'').replace(u"'",u'').replace(u'"',u'').replace(u"[",u'')
+        review = review.replace(u']',u'').replace(u'【',u'').replace(u'】',u'').replace(u'”',u'').replace(u"",u'’')
         # print shop,'\t',review
         numstop = 0;
         numunit = 0;
@@ -146,7 +147,7 @@ class dp_reviewhelper:
                 current_dish = ''
                 current_count = 0
 
-            if w.word in {u'。',u':',u'!',u'@',u'+',u'.',u'~',u'?',u'！',u'？',u'：',u' ',u'其他',u'另外'} and current_dish != '':
+            if w.word in {u'、',u'。',u':',u'!',u'@',u'+',u'.',u'~',u'?',u'！',u'？',u'：',u' ',u'其他',u'另外'} and current_dish != '':
                 current_dish = ''
                 dp_queue[:] = []
 

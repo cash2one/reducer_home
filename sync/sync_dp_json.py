@@ -22,7 +22,7 @@ class DeviceIter(object):
         self.city = None
         self.keywordData = []
         self.last = []
-        self.deviceid = None
+        self.shopid = None
 
     def getOneDeviceDate(self):
         ret = self.keywordData
@@ -30,7 +30,7 @@ class DeviceIter(object):
             # print line
             try:
                 if len(line) > 5:
-                    deviceid, cityid, shopid, rank = line.replace('\n', '').split('\t')
+                    shopid, tag, detial,rank = line.replace('\n', '').split('\t')
                 else:
                     print "too short"
                     continue
@@ -39,20 +39,18 @@ class DeviceIter(object):
                 pass
             else:
                 #print keyword,cityid,score,self.lastkeyword
-                if deviceid == self.deviceid and cityid == self.city:
+                if shopid == self.shopid:
                     # print "old keyword",keyword
-                    self.keywordData.append((deviceid, cityid, shopid, rank))
-                elif self.deviceid is None:
+                    self.keywordData.append((shopid,tag,detial,rank))
+                elif self.shopid is None:
                     # print "first time"
-                    self.city = cityid
-                    self.deviceid = deviceid
-                    self.keywordData.append((deviceid, cityid, shopid, rank))
+                    self.shopid = shopid
+                    self.keywordData.append((shopid, tag,detial, rank))
                 else:
                     # print "new keyword",keyword
                     ret = self.keywordData
-                    self.keywordData = [(deviceid, cityid, shopid, rank)]
-                    self.city = cityid
-                    self.deviceid = deviceid
+                    self.keywordData = [(shopid, tag,detial, rank)]
+                    self.shopid = shopid
                     break
 
         if ret != self.last:
@@ -68,9 +66,10 @@ if __name__ == '__main__':
     mobile_update = sys.argv[1]
 
     total = 67851701
-    # for line in file(mobile_update):
-    #     total +=1
-    # print "total",total
+    total = 1
+    for line in file(mobile_update):
+        total +=1
+    print "total",total
 
     iter = DeviceIter(mobile_update)
 
@@ -79,12 +78,12 @@ if __name__ == '__main__':
         cur = None
         sql = None
         count = 0
-        userid_count = 0
+        shopid_count = 0
         correct = 0
         end = 1
         while end:
 
-            if userid_count % 5000 == 0:
+            if shopid_count % 5000 == 0:
                 if conn:
                     conn.commit()
                     conn.close()
@@ -94,9 +93,9 @@ if __name__ == '__main__':
                 sql = """USE airec;"""
                 cur.execute(sql)
 
-            userid_count += 1
+            shopid_count += 1
 
-            useridrankmap = {}
+            shopidrankmap = {}
 
             for l in iter.getOneDeviceDate():
                 ll = list(l)
@@ -105,36 +104,45 @@ if __name__ == '__main__':
                     break
                 count += 1
 
-                userid, cityID, word, score = l[0], l[1], l[2], l[3]
+                shopid, tag, dpdetial, score = l[0], l[1], l[2], l[3]
                 # word = word.encode("utf-8")
-                if "'" in word:
-                    continue
+                # if "'" in word:
+                #     continue
                 # word = word.replace("'","\\'")
-                useridrankmap[word] = score
+                tagmap = {}
+                tagmap[dpdetial] = score
+                if not shopidrankmap.has_key(tag):
+                    shopidrankmap[tag] = []
 
-            # print userid, cityID
-            # print json.dumps(deviceidrankmap)
+                shopidrankmap[tag].append(tagmap)
 
-            sql = """REPLACE INTO airec.DP_SearchKeyword_tmp (Userid, CityID, KeywordRankMap) VALUES('%s','%d','%s')
-            """ % (userid, int(cityID), json.dumps(useridrankmap, ensure_ascii = False))
 
-            # print sql
-            ret = cur.execute(sql)
+            # print shopid
+            # print json.dumps(shopidrankmap,ensure_ascii = False))
+
+            sql = """REPLACE INTO airec.DP_ShopTagCloud (ShopID, ShopRankMap) VALUES('%s','%s')
+            """ % (shopid, json.dumps(shopidrankmap, ensure_ascii=False))
+            if json.dumps(shopidrankmap, ensure_ascii=False) == "{}":
+                print "pass: "+sql
+            else:
+             # print sql
+                ret = cur.execute(sql)
             if ret > 0:
                 correct += 1
-            if userid_count % 2000 == 0:
 
+
+
+            if shopid_count % 200 == 0:
                 conn.commit()
-                print correct/userid_count,correct,"/",userid_count
+                print correct/shopid_count, correct,"/",shopid_count
                 print 100*count/total, '%'
                 print sql
-                time.sleep(0.5)
+                time.sleep(0.05)
                 # break
-
-
     except Exception, ex:
         print "DB ERROR:", ex
     finally:
+        conn.commit()
         conn.close()
 print "\ndone."
 

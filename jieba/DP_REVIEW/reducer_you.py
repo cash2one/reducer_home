@@ -33,7 +33,7 @@ for lines in file("dp_tasty_dict.txt"):
     if len(p) < 2:
         tasty.add(p)
 
-for line in file("dp2.txt"):
+for line in file("dp5.txt"):
     shopid = line.strip().split('\t')[0]
     c = line.strip().split('\t')[6]
     if shopid not in shopdict.keys():
@@ -94,10 +94,10 @@ for line in stdin:
     dpdetial = line.strip().split('\t')[4]
     nv = line.strip().split('\t')[5]
     c = int(line.strip().split('\t')[6])
-    try:
-        k = c / int(shopdict[shopid])
-    except KeyError:
-        continue
+    #try:
+    k = c / int(shopdict[shopid])
+    #except KeyError:
+      #  continue
     wahaha = dpdetial
 
     if dp == u'干' or nv == u'象' or currentdish == u'没有' or c < 2:
@@ -123,7 +123,7 @@ for line in stdin:
                 wahaha = dp+dp+u'的'
             # print shopid,  int(shopdict[shopid]),currentdish, k ,dp+dp+u'的'
 
-        print '\t'.join([shopid,currentdish,dp,wahaha,str(c)])
+    print '\t'.join([shopid,currentdish,dp,wahaha,str(c)])
 
   except IndexError,ex:
     pass

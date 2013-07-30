@@ -13,13 +13,13 @@ tagdict={}
 shopid=0
 cityid=0
 
-for line in stdin:
+for line in file("dp_tasty.txt"):
   try:
     line=line.decode('utf-8')
     dp = line.strip()
     co = 100
     # a = float(rank)
-    print " ".join([dp, str(co), 'feeling'])
+    print " ".join([dp, str(co), 'tasty'])
   except IndexError,ex:
     pass
   except ValueError,ex:

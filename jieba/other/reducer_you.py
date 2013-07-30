@@ -28,19 +28,15 @@ shopdict = {}
 tasty = set([])
 k = 0.0
 
-for lines in file("dp_tasty_dict.txt"):
-    p = lines.strip().split()[0].decode("utf-8")
-    if len(p) < 2:
-        tasty.add(p)
-
-for line in file("dp2.txt"):
+filename = "dp_other.txt"
+for line in file(filename):
     shopid = line.strip().split('\t')[0]
     c = line.strip().split('\t')[6]
     if shopid not in shopdict.keys():
         shopdict[shopid] = 0
     if shopdict[shopid] < int(c):
         shopdict[shopid] = int(c)
-#
+
 # for line in stdin:
 #   try:
 #  #   line=line.decode('utf-8')
@@ -84,7 +80,7 @@ for line in file("dp2.txt"):
 #     shopid=0
 
 
-for line in stdin:
+for line in file(filename):
   try:
  #   line=line.decode('utf-8')
     shopid = line.strip().split('\t')[0]
@@ -94,10 +90,7 @@ for line in stdin:
     dpdetial = line.strip().split('\t')[4]
     nv = line.strip().split('\t')[5]
     c = int(line.strip().split('\t')[6])
-    try:
-        k = c / int(shopdict[shopid])
-    except KeyError:
-        continue
+    k = c / int(shopdict[shopid])
     wahaha = dpdetial
 
     if dp == u'干' or nv == u'象' or currentdish == u'没有' or c < 2:

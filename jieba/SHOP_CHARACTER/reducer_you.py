@@ -28,18 +28,15 @@ shopdict = {}
 tasty = set([])
 k = 0.0
 
-for lines in file("dp_tasty_dict.txt"):
-    p = lines.strip().split()[0].decode("utf-8")
-    if len(p) < 2:
-        tasty.add(p)
+filename = sys.argv[1]
 
-for line in file("dp2.txt"):
+for line in file(filename):
     shopid = line.strip().split('\t')[0]
-    c = line.strip().split('\t')[6]
+    c = int(line.strip().split('\t')[4])
     if shopid not in shopdict.keys():
         shopdict[shopid] = 0
-    if shopdict[shopid] < int(c):
-        shopdict[shopid] = int(c)
+    if shopdict[shopid] < c:
+        shopdict[shopid] = c
 #
 # for line in stdin:
 #   try:
@@ -84,44 +81,34 @@ for line in file("dp2.txt"):
 #     shopid=0
 
 
-for line in stdin:
+for line in file(filename):
   try:
  #   line=line.decode('utf-8')
     shopid = line.strip().split('\t')[0]
     currentdish = line.strip().split('\t')[1]
     dp = line.strip().split('\t')[2].decode("utf-8")
-    dptype = line.strip().split('\t')[3]
-    dpdetial = line.strip().split('\t')[4]
-    nv = line.strip().split('\t')[5]
-    c = int(line.strip().split('\t')[6])
-    try:
-        k = c / int(shopdict[shopid])
-    except KeyError:
-        continue
+    dpdetial = line.strip().split('\t')[3]
+    c = int(line.strip().split('\t')[4])
+
     wahaha = dpdetial
 
-    if dp == u'干' or nv == u'象' or currentdish == u'没有' or c < 2:
-        pass
-    elif currentdish.find(nv) >=0 and dptype == 'f':
-        pass
+    # if dp == u'干' or nv == u'象' or currentdish == u'没有' or c < 2:
+    #     pass
+    if c < 2:
+        continue
     else:
         if c > 1 and len(dp) == 1 and dpdetial == dp:
+            continue
             # print k , int(shopdict[shopid])
-            if k > 0.8:
-                wahaha = u'很'+ dp
-            # print shopid,  int(shopdict[shopid]),currentdish, k , u'很'+ dp
-            elif k > 0.6:
-                wahaha = u'挺'+dp
-            # print shopid,  int(shopdict[shopid]),currentdish, k ,u'挺'+dp
-            elif k > 0.15:
-                wahaha = u'比较'+dp
-            # print shopid,  int(shopdict[shopid]),currentdish, k ,u'比较'+dp
-            elif dp in {u'硬',u'糊',u'老',u'咸',u'腻',u'淡',u'柴',u'腥',u'膻',u'油'}:
-                wahaha = u'有点'+dp
-            # print shopid,  int(shopdict[shopid]),currentdish, k ,u'有点'+dp
-            else:
-                wahaha = dp+dp+u'的'
-            # print shopid,  int(shopdict[shopid]),currentdish, k ,dp+dp+u'的'
+            # if k > 0.8:
+            #     wahaha = u'很'+ dp
+            # # print shopid,  int(shopdict[shopid]),currentdish, k , u'很'+ dp
+            # elif k > 0.6:
+            #     wahaha = u'挺'+dp
+            # # print shopid,  int(shopdict[shopid]),currentdish, k ,u'挺'+dp
+            # elif k > 0.1:
+            #     wahaha = u'比较'+dp
+            # # print shopid,  int(shopdict[shopid]),currentdish, k ,u'比较'+dp
 
         print '\t'.join([shopid,currentdish,dp,wahaha,str(c)])
 

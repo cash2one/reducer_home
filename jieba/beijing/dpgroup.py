@@ -71,8 +71,8 @@ class dpgroup:
                 # idx = lword.index(w.word)
                 idx = l.index(w)
                 break
-            # elif w.word in dish_list + [u',',u'.',u'，',u'。',u':',u'!',u'@',u'+',u'.',u'~',u'?',u'！',u'？',u'：',u' ',u'其他',u'另外']:
-            #     break
+            elif w.word in dish_list + [u',',u'.',u'，',u'。',u':',u'!',u'@',u'+',u'.',u'~',u'?',u'！',u'？',u'：',u' ',u'其他',u'另外']:
+                break
             else:
                 continue
 

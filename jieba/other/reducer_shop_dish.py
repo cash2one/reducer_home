@@ -1,6 +1,6 @@
 #!/bin/env python
 # -*- coding: utf-8 -*-
-# reducer 环境氛围
+# reducer 推荐菜
 
 
 import sys
@@ -18,13 +18,12 @@ cityid=0
 for line in stdin:
   try:
  #   line=line.decode('utf-8')
-    atmos = line.strip().split('\t')[0]
-    # count = line.strip().split('\t')[1]
-    # co = float(count)
-    co = 1.0
+    shopid = line.strip().split('\t')[0]
+    dish = line.strip().split('\t')[1]
+
     # a = float(rank)
-    if ' ' not in atmos:
-        print " ".join([atmos.upper(), str(co), 'n'])
+    if ' ' not in dish:
+        print "\t".join([shopid , dish.upper()])
   except IndexError,ex:
     pass
   except ValueError,ex:
