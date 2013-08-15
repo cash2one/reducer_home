@@ -14,6 +14,8 @@ sys.setdefaultencoding('utf-8')
 
 class dp_reviewhelper:
 
+    ODC = "OTHER DISH"
+
     def __init__(self):
 
         self.model = ['']
@@ -30,6 +32,7 @@ class dp_reviewhelper:
         self.shopid = None
         self.file = ''
         self.alldish = set([u'ma'])
+
 
 
     def GetScore(self , dpg):
@@ -82,27 +85,34 @@ class dp_reviewhelper:
             adj, feq, flag = lines.strip().split()
             self.adj.append(adj.decode("utf-8"))
 
+    def LoadEX(self,f):
+        jieba.load_userdict(f)
     def LoadModel(self):
         ' '
 
     def HasDish(self,shop, dish, model = '1'):
         if model == '1':
             # total match
-            if dish in self.shopDish[shop]:
+            if dish in self.shopDish.get(shop):
                 # print dish
                 return dish,dish
             elif dish in self.alldish:
-                for longdish in self.shopDish[shop]:
+                for longdish in self.shopDish.get(shop):
                     if longdish.find(dish) >= 0 and len(longdish) >= 3:
                         # print dish,'------------->',longdish
+                        # we can find
                         return dish,longdish
+                # other dish
+                return dish, ""
+            # go on
             return dish,None
 
 
     def PreProcessing(self, shop, review):
 
         # review = review.replace(u'了','').replace(u'的','').replace(u'也','')
-        review = review.replace(u'了','').replace(u'也','')
+        review = review.replace(u'～',u'').replace(u'了',u'').replace(u'也',u'').replace(u"'",u'').replace(u'"',u'').replace(u"[",u'')
+        review = review.replace(u'~',u'').replace(u']',u'').replace(u'【',u'').replace(u'】',u'').replace(u'”',u'').replace(u"’",u'')
         # print shop,'\t',review
         numstop = 0;
         numunit = 0;
@@ -129,11 +139,18 @@ class dp_reviewhelper:
             dish , logdish = self.HasDish(shop, w.word ,'1')
 
             if logdish is not None:
+                # get one dish
+
                 if dish != logdish:
-                    pass
+                    # pass
                     # print dish, logdish,'***********'
-                current_dish = logdish
+                    current_dish = logdish
+                else:
+                    current_dish = dish
+                dp_queue[:] = []
                 current_count = 0
+                continue
+
                 # print current_dish
 
             if current_dish != '':
@@ -146,9 +163,10 @@ class dp_reviewhelper:
                 current_dish = ''
                 current_count = 0
 
-            if w.word in {u'。',u':',u'!',u'@',u'+',u'.',u'~',u'?',u'！',u'？',u'：',u' ',u'其他',u'另外'} and current_dish != '':
+            if w.word in {u'饮料',u'、',u'。',u':',u'!',u'@',u'+',u'.',u'~',u'?',u'！',u'？',u'：',u' ',u'其他',u'另外'} and current_dish != '':
                 current_dish = ''
                 dp_queue[:] = []
+                continue
 
             if len(w.word) > 1:
                 dp_pinyin = p.get_pinyin(w.word)
@@ -163,12 +181,12 @@ class dp_reviewhelper:
 
             if w.word in (self.dpTasty | self.dpFeeling) and current_dish != '':
 
-                print  shop, current_dish , dp_queue,  p.get_pinyin(w.word)
+                # print  shop, current_dish , dp_queue,  p.get_pinyin(w.word)
                 dpg = dpgroup('dp')
                 dpg.setdish(current_dish)
                 dpg.setshop(shop)
                 dp_queue2 = dp_queue[:]
-                dpg.parser(shop, dp_queue2, self.adj, self.neg, self.shopDish[shop])
+                dpg.parser(shop, dp_queue2, self.adj, self.neg, self.shopDish.get(shop))
         #
                 if dpg.noun in {u'生意',u'店面',u'服务',u'环境',u'象',u'时候',u'人'}:
                     continue
@@ -265,20 +283,18 @@ class dp_reviewhelper:
             if shopid.strip() == '':
                 continue
 
-            if shopid == self.shopid:
-                self.ProcessDgp(shopid, review)
-
-            elif self.shopid is None:
+            if self.shopid is None:
                 self.shopid = shopid
-                self.ProcessDgp(shopid, review)
 
             elif shopid != self.shopid:
-
                 self.Show()
                 self.cao = {}
                 self.shopReview = {}
                 self.shopid = shopid
-                self.ProcessDgp(shopid, review)
+
+	    if shopid not in  self.shopDish.keys():
+		continue
+            self.ProcessDgp(shopid, review)
                     # break
                     # self.PreProcessing(lines.decode("utf-8"))
                 # count += 1
@@ -293,14 +309,14 @@ class dp_reviewhelper:
 def main(filenam,outfile):
 
     dp_test = dp_reviewhelper()
-    dp_test.LoadDishDict('dish_dict_reduced.txt')
-    dp_test.LoadShopDish('shop_dish.txt')
-    # dp_test.LoadDictDP('dish_dict_reduced.txt')
-    dp_test.LoadDictDP('dp_tasty_dict.txt')
-    dp_test.LoadDictDP('dp_feeling_dict.txt')
-    dp_test.LoadAdj('adj.txt')
-    dp_test.LoadNeg('negtive.txt')
+    dp_test.LoadDishDict('/Users/mantou/reducer_home/jieba/DISH_SCRIPT/dish_dict_reduced.txt')
+    dp_test.LoadDictDP('/Users/mantou/reducer_home/jieba/DISH_SCRIPT/dp_tasty_dict.txt')
+    dp_test.LoadDictDP('/Users/mantou/reducer_home/jieba/DISH_SCRIPT/dp_feeling_dict.txt')
+    dp_test.LoadAdj('/Users/mantou/reducer_home/jieba/DISH_SCRIPT/adj.txt')
+    dp_test.LoadNeg('/Users/mantou/reducer_home/jieba/DISH_SCRIPT/negtive.txt')
+    dp_test.LoadEX('/Users/mantou/reducer_home/jieba/DISH_SCRIPT/daye.txt')
 
+    dp_test.LoadShopDish('shop_dish.txt')
     dp_test.excute(filenam,outfile)
 
 if __name__ == '__main__':
@@ -308,7 +324,7 @@ if __name__ == '__main__':
         filename = sys.argv[1]
         outfile = sys.argv[2]
     except IndexError:
-        filename = 'review_500000.txt'
+        filename = 'review_1883626.txt'
         outfile = 'r_python.txt'
     main(filename,outfile)
-    # dp_test.show()
+

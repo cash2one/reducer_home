@@ -25,15 +25,24 @@ dish = None
 tempdp = []
 shopdict = {}
 
-tasty = set([])
+# tasty = set([])
 k = 0.0
 
-for lines in file("dp_tasty_dict.txt"):
-    p = lines.strip().split()[0].decode("utf-8")
-    if len(p) < 2:
-        tasty.add(p)
+# for lines in file("dp_tasty_dict.txt"):
+#     p = lines.strip().split()[0].decode("utf-8")
+#     if len(p) < 2:
+#         tasty.add(p)
 
-for line in file("dp5.txt"):
+
+# record max c of differernt shopid
+nvdict = []
+
+for line in file("nv.txt"):
+    nv = line.strip().split('\t')[0].decode('utf-8')
+    nvdict.append(nv)
+
+
+for line in file("dp1_0731.txt"):
     shopid = line.strip().split('\t')[0]
     c = line.strip().split('\t')[6]
     if shopid not in shopdict.keys():
@@ -84,26 +93,46 @@ for line in file("dp5.txt"):
 #     shopid=0
 
 
-for line in stdin:
+for line in file("dp1_0731.txt"):
+  # print line
+
   try:
  #   line=line.decode('utf-8')
     shopid = line.strip().split('\t')[0]
     currentdish = line.strip().split('\t')[1]
     dp = line.strip().split('\t')[2].decode("utf-8")
     dptype = line.strip().split('\t')[3]
-    dpdetial = line.strip().split('\t')[4]
-    nv = line.strip().split('\t')[5]
+    dpdetial = line.strip().split('\t')[4].decode("utf-8")
+    nv = line.strip().split('\t')[5].decode("utf-8")
+    # print nv
     c = int(line.strip().split('\t')[6])
-    #try:
-    k = c / int(shopdict[shopid])
-    #except KeyError:
-      #  continue
+    try:
+        k = c / int(shopdict[shopid])
+    except KeyError:
+        continue
+
+
+    if nv not in nvdict and len(nv.strip()) != 0:
+        # print 1,nv, dp ,dpdetial,len(nv.strip())
+        dpdetial = dp
+    # else:
+        # print 2,nv,dpdetial,len(nv.strip())
+    # if c <= 1:
+    #     continue
+    if dp == u'必点':
+        dpdetial = dp
     wahaha = dpdetial
 
-    if dp == u'干' or nv == u'象' or currentdish == u'没有' or c < 2:
-        pass
-    elif currentdish.find(nv) >=0 and dptype == 'f':
-        pass
+    if len(dpdetial) > 6:
+        # print len(dpdetial)
+        continue
+
+    if dp in [u'最爱',u'爱吃',u'不爱吃']:
+        continue
+    if dp == u'干' or u'象' in wahaha.decode("utf-8") or currentdish == u'没有':
+        continue
+    # elif currentdish.find(nv) >=0 and dptype == 'f':
+    #     continue
     else:
         if c > 1 and len(dp) == 1 and dpdetial == dp:
             # print k , int(shopdict[shopid])
