@@ -87,7 +87,7 @@ if __name__ == '__main__':
                 if conn:
                     conn.commit()
                     conn.close()
-                conn = MySQLdb.connect(host='192.168.8.44', user='airec', passwd='dp!@VGSrf1cjE', db='airec', port=3306,
+                conn = MySQLdb.connect(host='192.168.8.41', user='airec', passwd='dp!@VGSrf1cjE', db='airec', port=3306,
                                    charset='utf8')
                 cur = conn.cursor()
                 sql = """USE airec;"""
@@ -108,7 +108,7 @@ if __name__ == '__main__':
                 # word = word.encode("utf-8")
                 # if "'" in word:
                 #     continue
-                # word = word.replace("'","\\'")
+                # tag = tag.replace("'","\\'")
                 tagmap = {}
                 tagmap[dpdetial] = score
                 if not shopidrankmap.has_key(tag):
@@ -121,16 +121,14 @@ if __name__ == '__main__':
             # print json.dumps(shopidrankmap,ensure_ascii = False))
 
             sql = """REPLACE INTO airec.DP_ShopTagCloud (ShopID, ShopRankMap) VALUES('%s','%s')
-            """ % (shopid, json.dumps(shopidrankmap, ensure_ascii=False))
+            """ % (shopid, json.dumps(shopidrankmap, ensure_ascii=False).replace("'","\\'"))
             if json.dumps(shopidrankmap, ensure_ascii=False) == "{}":
                 print "pass: "+sql
             else:
-             # print sql
+                # print sql
                 ret = cur.execute(sql)
             if ret > 0:
                 correct += 1
-
-
 
             if shopid_count % 200 == 0:
                 conn.commit()

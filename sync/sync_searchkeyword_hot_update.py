@@ -12,7 +12,7 @@ MySQLdb.install_as_MySQLdb()
 
 C = MySQLdb.connect
 
-HOST = '192.168.8.44'
+HOST = '192.168.8.41'
 PASSWORD = 'dp!@VGSrf1cjE'
 
 if __name__ == '__main__':
@@ -40,7 +40,7 @@ if __name__ == '__main__':
         for line in file(keyword_hot):
             count += 1
             keyword, newcityID , score = line.replace('\n', '').split('\t')
-
+            score=float(score)
             if cityID == newcityID:
                 pass
             else:
@@ -52,8 +52,8 @@ if __name__ == '__main__':
 
 
             sql = """INSERT INTO airec.DP_SearchKeyword_Hot (Keyword, CityID, Score) VALUES('%s','%d','%d')
-            """ % ( keyword,int(newcityID),int(score))
-            # print sql
+            """ % ( keyword.replace("'","\\'"),int(newcityID),int(score))
+            print sql
             ret = cur.execute(sql)
 
             if ret > 0:

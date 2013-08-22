@@ -88,7 +88,7 @@ if __name__ == '__main__':
                 if conn:
                     conn.commit()
                     conn.close()
-                conn = MySQLdb.connect(host='192.168.8.44', user='airec', passwd='dp!@VGSrf1cjE', db='airec', port=3306,
+                conn = MySQLdb.connect(host='192.168.8.41', user='airec', passwd='dp!@VGSrf1cjE', db='airec', port=3306,
                                    charset='utf8')
                 cur = conn.cursor()
                 sql = """USE airec;"""
@@ -115,7 +115,7 @@ if __name__ == '__main__':
             # print userid, cityID
             # print json.dumps(deviceidrankmap)
 
-            sql = """REPLACE INTO airec.DP_SearchKeyword_tmp (Userid, CityID, KeywordRankMap) VALUES('%s','%d','%s')
+            sql = """REPLACE INTO airec.DP_SearchKeyword (Userid, CityID, KeywordRankMap) VALUES('%s','%d','%s')
             """ % (userid, int(cityID), json.dumps(useridrankmap, ensure_ascii = False))
 
             # print sql
